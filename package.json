@@ -11,7 +11,10 @@
     "typescript": "^1.8.10"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build && npm run server",
+    "build": "tsc -p .",
+    "server": "python -m SimpleHTTPServer 8000"
   },
   "author": "Alexey Shamrin <shamrin@gmail.com>",
   "license": "MIT"
