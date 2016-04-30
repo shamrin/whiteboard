@@ -49,6 +49,10 @@ class Canvas {
         
         firebaseOnSegmentAdd(this.handleSegmentAdd);
         firebaseOnSegmentUpdate(this.handleSegmentUpdate);
+        firebaseOnSegmentsClean(segments => {
+            this.segments = [{points: [], color: getColor()}];
+            this.redraw();
+        });
         
     }
     
@@ -156,6 +160,14 @@ function firebaseSegmentAdd(segment: Segment): string {
 function firebaseSegmentUpdate(segment: Segment) {
     let {key, points, color} = segment;
     FIREBASE.child('segments').child(key).update({points, color});
+}
+
+function firebaseOnSegmentsClean(callback) {
+    FIREBASE.child('segments').on('value', snapshot => {
+        if (!snapshot.hasChildren()) {
+            callback();
+        }
+    });
 }
 
 function firebaseOnSegmentAdd(callback) {
