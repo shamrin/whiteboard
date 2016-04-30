@@ -22,15 +22,27 @@ ctx.lineJoin = ctx.lineCap = 'round';
 
 var isDrawing, points = [];
 
-el.onmousedown = function (e) {
+interface Coords {
+    x: number;
+    y: number;
+}
+
+function getCoords (event: MouseEvent, element: HTMLElement): Coords {
+    return {
+        x: event.pageX - element.offsetLeft,
+        y: event.pageY - element.offsetTop,
+    };
+}
+
+el.onmousedown = function (e: MouseEvent) {
     isDrawing = true;
-    points.push({ x: e.clientX, y: e.clientY });
+    points.push(getCoords(e, e.currentTarget as HTMLElement));
 };
 
-el.onmousemove = function (e) {
+el.onmousemove = function (e: MouseEvent) {
     if (!isDrawing) return;
 
-    points.push({ x: e.clientX, y: e.clientY });
+    points.push(getCoords(e, e.currentTarget as HTMLElement));
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
