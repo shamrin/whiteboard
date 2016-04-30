@@ -7,6 +7,64 @@
 //     }
 // });
 
+class Canvas {
+    points: Coords[];
+    element: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+    isDrawing: Boolean;
+    
+    constructor(element) {
+        this.points = [];
+        this.element = element;
+        
+        element.onmousedown = this.handleMouseDown;
+        element.onmousemove = this.handleMouseMove;
+        element.onmouseup = this.handleMouseUp;
+        
+        this.ctx = element.getContext('2d');
+        this.ctx.lineWidth = 10;
+        this.ctx.lineJoin = this.ctx.lineCap = 'round';
+    }
+    
+    handleMouseDown = (e: MouseEvent) => {
+        this.isDrawing = true;
+        this.points.push(getCoords(e, e.currentTarget as HTMLElement));
+    }
+    
+    handleMouseMove = (e: MouseEvent) => {
+        if (!this.isDrawing) return;
+
+        this.points.push(getCoords(e, e.currentTarget as HTMLElement));
+
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+        var p1 = this.points[0];
+        var p2 = this.points[1];
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(p1.x, p1.y);
+
+        for (var i = 1, len = this.points.length; i < len; i++) {
+            // we pick the point between pi+1 & pi+2 as the
+            // end point and p1 as our control point
+            var midPoint = midPointBtw(p1, p2);
+            this.ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
+            p1 = this.points[i];
+            p2 = this.points[i + 1];
+        }
+        // Draw last line as a straight line while
+        // we wait for the next point to be able to calculate
+        // the bezier control point
+        this.ctx.lineTo(p1.x, p1.y);
+        this.ctx.stroke();
+    }
+    
+    handleMouseUp = (e: MouseEvent) => {
+        this.isDrawing = false;
+        this.points.length = 0;
+    }
+}
+
 function midPointBtw(p1, p2) {
     return {
         x: p1.x + (p2.x - p1.x) / 2,
@@ -14,13 +72,7 @@ function midPointBtw(p1, p2) {
     };
 }
 
-var el = document.getElementById('c');
-var ctx = el.getContext('2d');
-
-ctx.lineWidth = 10;
-ctx.lineJoin = ctx.lineCap = 'round';
-
-var isDrawing, points = [];
+var canvas = new Canvas(document.getElementById('c'));
 
 interface Coords {
     x: number;
@@ -33,43 +85,5 @@ function getCoords (event: MouseEvent, element: HTMLElement): Coords {
         y: event.pageY - element.offsetTop,
     };
 }
-
-el.onmousedown = function (e: MouseEvent) {
-    isDrawing = true;
-    points.push(getCoords(e, e.currentTarget as HTMLElement));
-};
-
-el.onmousemove = function (e: MouseEvent) {
-    if (!isDrawing) return;
-
-    points.push(getCoords(e, e.currentTarget as HTMLElement));
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    var p1 = points[0];
-    var p2 = points[1];
-
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-
-    for (var i = 1, len = points.length; i < len; i++) {
-        // we pick the point between pi+1 & pi+2 as the
-        // end point and p1 as our control point
-        var midPoint = midPointBtw(p1, p2);
-        ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
-        p1 = points[i];
-        p2 = points[i + 1];
-    }
-    // Draw last line as a straight line while
-    // we wait for the next point to be able to calculate
-    // the bezier control point
-    ctx.lineTo(p1.x, p1.y);
-    ctx.stroke();
-};
-
-el.onmouseup = function () {
-    isDrawing = false;
-    points.length = 0;
-};
 
 // ReactDOM.render(<Main />, document.getElementById('main'));
