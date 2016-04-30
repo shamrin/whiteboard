@@ -7,7 +7,6 @@
 //     }
 // });
 
-
 interface Point {
     x: number;
     y: number;
@@ -16,7 +15,10 @@ interface Point {
 interface Segment {
     points: Point[];
     color: string;
+    key?: string;
 }
+
+let FIREBASE;
 
 // https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
 let COLORS = "edd400 f57900 c17d11 73d216 3465a4 75507b cc0000 d3d7cf 555753"
@@ -44,29 +46,53 @@ class Canvas {
         this.ctx = element.getContext('2d');
         this.ctx.lineWidth = 10;
         this.ctx.lineJoin = this.ctx.lineCap = 'round';
+        
+        firebaseOnSegmentAdd(this.handleSegmentAdd);
+        firebaseOnSegmentUpdate(this.handleSegmentUpdate);
+        
     }
     
     getSegment(): Segment {
         return this.segments[this.segments.length - 1];
     }
     
+    handleSegmentAdd = (segment: Segment, key: string, prevKey: string) => {
+        // console.log('segment add ' + key + ' ' + prevKey + ' ' + segment.points.length);
+        this.segments.push(segment);
+        this.redraw();
+    }
+    
+    handleSegmentUpdate = (segment: Segment, key: string, prevKey: string) => {
+        // console.log('segment update ' + key + ' ' + prevKey + ' ' + segment.points.length);
+        this.segments.forEach(s => {
+            if (s.key == key) {
+                s.points = segment.points;
+                s.color = segment.color;
+            }
+        });
+        this.redraw();
+    }
+    
     handleMouseDown = (e: MouseEvent) => {
         this.isDrawing = true;
-        this.getSegment().points.push(getCoords(e, e.currentTarget as HTMLElement));
+        let key = firebaseSegmentAdd({points: [getCoords(e, e.currentTarget as HTMLElement)], color: getColor()});
+        this.getSegment().key = key;
     }
     
     handleMouseMove = (e: MouseEvent) => {
         if (!this.isDrawing) return;
 
         this.getSegment().points.push(getCoords(e, e.currentTarget as HTMLElement));
-        
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.segments.forEach(segment => drawSegment(this.ctx, segment));
+        firebaseSegmentUpdate(this.getSegment());
     }
     
     handleMouseUp = (e: MouseEvent) => {
         this.isDrawing = false;
-        this.segments.push({points: [], color: getColor()});
+    }
+    
+    redraw = () => {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.segments.forEach(segment => drawSegment(this.ctx, segment));
     }
 }
 
@@ -88,6 +114,8 @@ function drawSegment (ctx: CanvasRenderingContext2D, {points, color}: Segment) {
     //
     //              2
     //
+    
+    if (points.length < 1) { return; }
     
     ctx.strokeStyle = color;
     ctx.beginPath();
@@ -112,8 +140,6 @@ function midPoint(p1: Point, p2: Point): Point {
     };
 }
 
-var canvas = new Canvas(document.getElementById('c'));
-
 function getCoords (event: MouseEvent, element: HTMLElement): Point {
     return {
         x: event.pageX - element.offsetLeft,
@@ -121,4 +147,34 @@ function getCoords (event: MouseEvent, element: HTMLElement): Point {
     };
 }
 
+function firebaseSegmentAdd(segment: Segment): string {
+    let ref = FIREBASE.child('segments').push();
+    ref.set(segment);
+    return ref.key();
+}
+
+function firebaseSegmentUpdate(segment: Segment) {
+    let {key, points, color} = segment;
+    FIREBASE.child('segments').child(key).update({points, color});
+}
+
+function firebaseOnSegmentAdd(callback) {
+    FIREBASE.child('segments').orderByKey().on('child_added', (snapshot, prevChildKey) =>
+        callback(snapshot.val(), snapshot.key(), prevChildKey));
+}
+        
+function firebaseOnSegmentUpdate(callback) {
+    FIREBASE.child('segments').on('child_changed', (snapshot, prevChildKey) =>
+        callback(snapshot.val(), snapshot.key(), prevChildKey));
+}
+
+function main() {
+    FIREBASE = new Firebase("https://popping-torch-5328.firebaseio.com/");
+    new Canvas(document.getElementById('c'));
+}
+
+main();
+
+// firebaseOnSegment();
+        
 // ReactDOM.render(<Main />, document.getElementById('main'));
