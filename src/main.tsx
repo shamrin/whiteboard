@@ -17,8 +17,12 @@ let COLORS = "edd400 f57900 c17d11 73d216 3465a4 75507b cc0000 d3d7cf 555753"
     .split(" ").map(color => "#" + color);
 let COLOR_INDEX = 0;
 
+function setColor(colorIndex) {
+    COLOR_INDEX = colorIndex;
+}
+
 function getColor() {
-    return COLORS[COLOR_INDEX++ % COLORS.length];
+    return COLORS[COLOR_INDEX];
 }
 
 class Canvas {
@@ -175,17 +179,68 @@ class SegmentsDatabase {
         let {key, points, color} = segment;
         this.firebase.child('segments').child(key).update({points, color});
     }
+    
+    clear() {
+        this.firebase.child('segments').set(null);
+    }
 }
 
- let Toolbar = React.createClass({
-     render() {
-         return <div>Hello from main.</div>;
-     }
+interface ToolbarProps {
+    onClear()
+}
+
+let Toolbar = React.createClass<ToolbarProps, any>({
+    getInitialState() {
+        return {colorIndex: 0};      
+    },
+
+    render() {
+        let buttonStyle = (color, selected, hover) => ({
+            background: color,
+            width: '30px',
+            height: '30px',
+            padding: 0,
+            borderRadius: 4,
+            border: (selected || hover) ? '3px solid #5c3566' : '3px solid #fff', 
+            outline: 'none',
+        });
+         
+        let clearButtonStyle = {
+             marginLeft: '20px'
+        };
+         
+        let toolbarStyle = {
+             margin: '10px'  
+        };
+         
+        let hintStyle = {
+             marginRight: '10px'  
+        };
+         
+        let {onClear} = this.props;
+        let {colorIndex, colorHover} = this.state;
+         
+        return (
+            <div style={toolbarStyle}>
+                <span style={hintStyle}>Choose color</span>
+                {COLORS.map((color, i) =>
+                    <button className="pure-button" style={buttonStyle(color, i === colorIndex, i === colorHover)} key={i} 
+                        onMouseOver={() => this.setState({colorHover: i})}
+                        onMouseOut={() => this.setState({colorHover: null})}
+                        onClick={() => {
+                            this.setState({colorIndex: i});
+                            setColor(i);
+                        }}
+                    />)}
+                <button className="pure-button" style={clearButtonStyle} onClick={onClear}>Clear</button>
+           </div>
+        );
+    }
  });
  
 function main() {
-    new Canvas(document.getElementById('c'));
-     ReactDOM.render(<Toolbar />, document.getElementById('toolbar'));
+    let canvas = new Canvas(document.getElementById('c'));
+    ReactDOM.render(<Toolbar onClear={() => canvas.db.clear()} />, document.getElementById('toolbar'));
 }
 
 main();
