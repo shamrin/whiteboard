@@ -50,28 +50,41 @@ class Canvas {
     }
 }
 
-function drawSegment (ctx: CanvasRenderingContext2D, segment: Segment) {
-    let [p1, p2] = segment.points;
-
+function drawSegment (ctx: CanvasRenderingContext2D, {points}: Segment) {
+    // Draw continuous bezier throught midpoints, with `points` as bezier
+    // control points. In this example 0, 1, 2, 3, 4 are the `points`, and
+    // 1-2, 2-3, 3-4 are the midpoints:
+    //
+    //                       3
+    //    1
+    //                       XX
+    //    XXX              XX  X
+    //   X   X            X     X 3-4
+    //  X     X 1-2      X       
+    // X       X        X 2-3
+    // X        X      X
+    // 0         X    X
+    //            XXXX              4
+    //
+    //              2
+    //
+    
     ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
+    ctx.moveTo(points[0].x, points[0].y);
 
-    for (var i = 1, len = segment.points.length; i < len; i++) {
-        // we pick the point between pi+1 & pi+2 as the
-        // end point and p1 as our control point
-        var midPoint = midPointBtw(p1, p2);
-        ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
-        p1 = segment.points[i];
-        p2 = segment.points[i + 1];
+    for (let i = 1; i < points.length - 1; i++) {
+        let end = midPoint(points[i], points[i + 1]);
+        let control = points[i];
+        ctx.quadraticCurveTo(control.x, control.y, end.x, end.y);
     }
-    // Draw last line as a straight line while
-    // we wait for the next point to be able to calculate
-    // the bezier control point
-    ctx.lineTo(p1.x, p1.y);
+
+    // Draw last line as a straight line (to point 4 in the example above)
+    let last = points[points.length - 1];
+    ctx.lineTo(last.x, last.y);
     ctx.stroke();
 }
 
-function midPointBtw(p1: Point, p2: Point): Point {
+function midPoint(p1: Point, p2: Point): Point {
     return {
         x: p1.x + (p2.x - p1.x) / 2,
         y: p1.y + (p2.y - p1.y) / 2
