@@ -1,7 +1,10 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
-React.createClass({
+let Main = React.createClass({
     render() {
-        return <div>Hello from main @#$%@#$%</div>;
+        return <div>Hello from main.</div>;
     }
 });
+
+ReactDOM.render(<Main />, document.getElementById('main'));

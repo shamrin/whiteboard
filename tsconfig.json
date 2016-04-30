@@ -14,7 +14,8 @@
         "noLib": false,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
-        "outFile": "build/bundle.js"
+        "outDir": "build/",
+        "watch": true
     },
     "exclude": [
         "node_modules",

@@ -1,0 +1,18 @@
+<!doctype html>
+<script src="/node_modules/systemjs/dist/system.js"></script>
+<script>
+    System.config({
+        baseURL: '/build',
+        map: {
+            react: '/node_modules/react/dist/react',
+            'react-dom': '/node_modules/react-dom/dist/react-dom'
+        },
+        defaultJSExtensions: true
+    });
+
+    System.import('main');
+</script>
+
+<body>
+    <div id="main">Loading...</div>
+</body>
