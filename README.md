@@ -6,4 +6,4 @@ Clone, build and run dev server:
     cd whiteboard/
     npm start
 
-Open browser: http://127.0.0.1:8000/browser/
+Open browser: http://127.0.0.1:8000
