@@ -1,11 +1,11 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+// import * as React from 'react';
+// import * as ReactDOM from 'react-dom';
 
-let Main = React.createClass({
-    render() {
-        return <div>Hello from main.</div>;
-    }
-});
+// let Main = React.createClass({
+//     render() {
+//         return <div>Hello from main.</div>;
+//     }
+// });
 
 function midPointBtw(p1, p2) {
     return {
@@ -72,4 +72,4 @@ el.onmouseup = function () {
     points.length = 0;
 };
 
-ReactDOM.render(<Main />, document.getElementById('main'));
+// ReactDOM.render(<Main />, document.getElementById('main'));
