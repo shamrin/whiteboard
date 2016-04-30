@@ -1,12 +1,3 @@
-// import * as React from 'react';
-// import * as ReactDOM from 'react-dom';
-
-// let Main = React.createClass({
-//     render() {
-//         return <div>Hello from main.</div>;
-//     }
-// });
-
 interface Point {
     x: number;
     y: number;
@@ -17,8 +8,6 @@ interface Segment {
     color: string;
     key?: string;
 }
-
-let FIREBASE;
 
 // https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
 let COLORS = "edd400 f57900 c17d11 73d216 3465a4 75507b cc0000 d3d7cf 555753"
@@ -34,6 +23,7 @@ class Canvas {
     element: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
     isDrawing: Boolean;
+    db: SegmentsDatabase;
     
     constructor(element) {
         this.segments = [{points: [], color: getColor()}];
@@ -47,13 +37,14 @@ class Canvas {
         this.ctx.lineWidth = 10;
         this.ctx.lineJoin = this.ctx.lineCap = 'round';
         
-        firebaseOnSegmentAdd(this.handleSegmentAdd);
-        firebaseOnSegmentUpdate(this.handleSegmentUpdate);
-        firebaseOnSegmentsClean(segments => {
-            this.segments = [{points: [], color: getColor()}];
-            this.redraw();
+        this.db = new SegmentsDatabase({
+            onAdd: this.handleSegmentAdd,
+            onUpdate: this.handleSegmentUpdate,
+            onClear: () => {
+                this.segments = [{points: [], color: getColor()}];
+                this.redraw();
+            }
         });
-        
     }
     
     getSegment(): Segment {
@@ -79,7 +70,7 @@ class Canvas {
     
     handleMouseDown = (e: MouseEvent) => {
         this.isDrawing = true;
-        let key = firebaseSegmentAdd({points: [getCoords(e, e.currentTarget as HTMLElement)], color: getColor()});
+        let key = this.db.add({points: [getCoords(e, e.currentTarget as HTMLElement)], color: getColor()});
         this.getSegment().key = key;
     }
     
@@ -87,7 +78,7 @@ class Canvas {
         if (!this.isDrawing) return;
 
         this.getSegment().points.push(getCoords(e, e.currentTarget as HTMLElement));
-        firebaseSegmentUpdate(this.getSegment());
+        this.db.update(this.getSegment());
     }
     
     handleMouseUp = (e: MouseEvent) => {
@@ -151,42 +142,39 @@ function getCoords (event: MouseEvent, element: HTMLElement): Point {
     };
 }
 
-function firebaseSegmentAdd(segment: Segment): string {
-    let ref = FIREBASE.child('segments').push();
-    ref.set(segment);
-    return ref.key();
-}
+class SegmentsDatabase {
+    firebase: Firebase;
+    
+    constructor({onAdd, onUpdate, onClear}) {
+        this.firebase = new Firebase("https://popping-torch-5328.firebaseio.com/");
 
-function firebaseSegmentUpdate(segment: Segment) {
-    let {key, points, color} = segment;
-    FIREBASE.child('segments').child(key).update({points, color});
-}
+        this.firebase.child('segments').orderByKey().on('child_added', (snapshot, prevChildKey) =>
+            onAdd(snapshot.val(), snapshot.key(), prevChildKey));
 
-function firebaseOnSegmentsClean(callback) {
-    FIREBASE.child('segments').on('value', snapshot => {
-        if (!snapshot.hasChildren()) {
-            callback();
-        }
-    });
-}
+        this.firebase.child('segments').on('child_changed', (snapshot, prevChildKey) =>
+            onUpdate(snapshot.val(), snapshot.key(), prevChildKey));
 
-function firebaseOnSegmentAdd(callback) {
-    FIREBASE.child('segments').orderByKey().on('child_added', (snapshot, prevChildKey) =>
-        callback(snapshot.val(), snapshot.key(), prevChildKey));
-}
-        
-function firebaseOnSegmentUpdate(callback) {
-    FIREBASE.child('segments').on('child_changed', (snapshot, prevChildKey) =>
-        callback(snapshot.val(), snapshot.key(), prevChildKey));
+        this.firebase.child('segments').on('value', snapshot => {
+            if (!snapshot.hasChildren()) {
+                onClear();
+            }
+        });
+    }
+    
+    add(segment: Segment): string {
+        let ref = this.firebase.child('segments').push();
+        ref.set(segment);
+        return ref.key();
+    }
+
+    update(segment: Segment) {
+        let {key, points, color} = segment;
+        this.firebase.child('segments').child(key).update({points, color});
+    }
 }
 
 function main() {
-    FIREBASE = new Firebase("https://popping-torch-5328.firebaseio.com/");
     new Canvas(document.getElementById('c'));
 }
 
 main();
-
-// firebaseOnSegment();
-        
-// ReactDOM.render(<Main />, document.getElementById('main'));
