@@ -8,13 +8,13 @@
 // });
 
 class Canvas {
-    points: Coords[];
+    segments: Segment[];
     element: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
     isDrawing: Boolean;
     
     constructor(element) {
-        this.points = [];
+        this.segments = [{points: []}];
         this.element = element;
         
         element.onmousedown = this.handleMouseDown;
@@ -26,31 +26,43 @@ class Canvas {
         this.ctx.lineJoin = this.ctx.lineCap = 'round';
     }
     
+    getSegment(): Segment {
+        return this.segments[this.segments.length - 1];
+    }
+    
     handleMouseDown = (e: MouseEvent) => {
         this.isDrawing = true;
-        this.points.push(getCoords(e, e.currentTarget as HTMLElement));
+        this.getSegment().points.push(getCoords(e, e.currentTarget as HTMLElement));
     }
     
     handleMouseMove = (e: MouseEvent) => {
         if (!this.isDrawing) return;
 
-        this.points.push(getCoords(e, e.currentTarget as HTMLElement));
-
+        this.getSegment().points.push(getCoords(e, e.currentTarget as HTMLElement));
+        
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
-        var p1 = this.points[0];
-        var p2 = this.points[1];
+        this.segments.forEach(this.drawSegment);
+    }
+    
+    handleMouseUp = (e: MouseEvent) => {
+        this.isDrawing = false;
+        this.segments.push({points: []});
+    }
+    
+    drawSegment = (segment: Segment) => {
+        var p1 = segment.points[0];
+        var p2 = segment.points[1];
 
         this.ctx.beginPath();
         this.ctx.moveTo(p1.x, p1.y);
 
-        for (var i = 1, len = this.points.length; i < len; i++) {
+        for (var i = 1, len = segment.points.length; i < len; i++) {
             // we pick the point between pi+1 & pi+2 as the
             // end point and p1 as our control point
             var midPoint = midPointBtw(p1, p2);
             this.ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
-            p1 = this.points[i];
-            p2 = this.points[i + 1];
+            p1 = segment.points[i];
+            p2 = segment.points[i + 1];
         }
         // Draw last line as a straight line while
         // we wait for the next point to be able to calculate
@@ -58,14 +70,9 @@ class Canvas {
         this.ctx.lineTo(p1.x, p1.y);
         this.ctx.stroke();
     }
-    
-    handleMouseUp = (e: MouseEvent) => {
-        this.isDrawing = false;
-        this.points.length = 0;
-    }
 }
 
-function midPointBtw(p1, p2) {
+function midPointBtw(p1: Point, p2: Point): Point {
     return {
         x: p1.x + (p2.x - p1.x) / 2,
         y: p1.y + (p2.y - p1.y) / 2
@@ -74,12 +81,16 @@ function midPointBtw(p1, p2) {
 
 var canvas = new Canvas(document.getElementById('c'));
 
-interface Coords {
+interface Point {
     x: number;
     y: number;
 }
 
-function getCoords (event: MouseEvent, element: HTMLElement): Coords {
+interface Segment {
+    points: Point[];
+}
+
+function getCoords (event: MouseEvent, element: HTMLElement): Point {
     return {
         x: event.pageX - element.offsetLeft,
         y: event.pageY - element.offsetTop,
