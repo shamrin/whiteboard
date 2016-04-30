@@ -7,10 +7,22 @@
 //     }
 // });
 
+
+interface Point {
+    x: number;
+    y: number;
+}
+
+interface Segment {
+    points: Point[];
+    color: string;
+}
+
 // https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
 let COLORS = "edd400 f57900 c17d11 73d216 3465a4 75507b cc0000 d3d7cf 555753"
     .split(" ").map(color => "#" + color);
 let COLOR_INDEX = 0;
+
 function getColor() {
     return COLORS[COLOR_INDEX++ % COLORS.length];
 }
@@ -101,16 +113,6 @@ function midPoint(p1: Point, p2: Point): Point {
 }
 
 var canvas = new Canvas(document.getElementById('c'));
-
-interface Point {
-    x: number;
-    y: number;
-}
-
-interface Segment {
-    points: Point[];
-    color: string;
-}
 
 function getCoords (event: MouseEvent, element: HTMLElement): Point {
     return {
