@@ -1,3 +1,6 @@
+ import * as React from 'react';
+ import * as ReactDOM from 'react-dom';
+
 interface Point {
     x: number;
     y: number;
@@ -52,13 +55,14 @@ class Canvas {
     }
     
     handleSegmentAdd = (segment: Segment, key: string, prevKey: string) => {
-        // console.log('segment add ' + key + ' ' + prevKey + ' ' + segment.points.length);
+        console.log('segment add ' + key + ' ' + prevKey + ' ' + segment.points.length);
+        segment.key = key;
         this.segments.push(segment);
         this.redraw();
     }
     
     handleSegmentUpdate = (segment: Segment, key: string, prevKey: string) => {
-        // console.log('segment update ' + key + ' ' + prevKey + ' ' + segment.points.length);
+        console.log('segment update ' + key + ' ' + prevKey + ' ' + segment.points.length);
         this.segments.forEach(s => {
             if (s.key == key) {
                 s.points = segment.points;
@@ -173,8 +177,15 @@ class SegmentsDatabase {
     }
 }
 
+ let Toolbar = React.createClass({
+     render() {
+         return <div>Hello from main.</div>;
+     }
+ });
+ 
 function main() {
     new Canvas(document.getElementById('c'));
+     ReactDOM.render(<Toolbar />, document.getElementById('toolbar'));
 }
 
 main();
