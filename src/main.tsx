@@ -7,6 +7,14 @@
 //     }
 // });
 
+// https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
+let COLORS = "edd400 f57900 c17d11 73d216 3465a4 75507b cc0000 d3d7cf 555753"
+    .split(" ").map(color => "#" + color);
+let COLOR_INDEX = 0;
+function getColor() {
+    return COLORS[COLOR_INDEX++ % COLORS.length];
+}
+
 class Canvas {
     segments: Segment[];
     element: HTMLCanvasElement;
@@ -14,7 +22,7 @@ class Canvas {
     isDrawing: Boolean;
     
     constructor(element) {
-        this.segments = [{points: []}];
+        this.segments = [{points: [], color: getColor()}];
         this.element = element;
         
         element.onmousedown = this.handleMouseDown;
@@ -46,11 +54,11 @@ class Canvas {
     
     handleMouseUp = (e: MouseEvent) => {
         this.isDrawing = false;
-        this.segments.push({points: []});
+        this.segments.push({points: [], color: getColor()});
     }
 }
 
-function drawSegment (ctx: CanvasRenderingContext2D, {points}: Segment) {
+function drawSegment (ctx: CanvasRenderingContext2D, {points, color}: Segment) {
     // Draw continuous bezier throught midpoints, with `points` as bezier
     // control points. In this example 0, 1, 2, 3, 4 are the `points`, and
     // 1-2, 2-3, 3-4 are the midpoints:
@@ -69,6 +77,7 @@ function drawSegment (ctx: CanvasRenderingContext2D, {points}: Segment) {
     //              2
     //
     
+    ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
 
@@ -100,6 +109,7 @@ interface Point {
 
 interface Segment {
     points: Point[];
+    color: string;
 }
 
 function getCoords (event: MouseEvent, element: HTMLElement): Point {
