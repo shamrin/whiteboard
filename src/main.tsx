@@ -41,35 +41,34 @@ class Canvas {
         this.getSegment().points.push(getCoords(e, e.currentTarget as HTMLElement));
         
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.segments.forEach(this.drawSegment);
+        this.segments.forEach(segment => drawSegment(this.ctx, segment));
     }
     
     handleMouseUp = (e: MouseEvent) => {
         this.isDrawing = false;
         this.segments.push({points: []});
     }
-    
-    drawSegment = (segment: Segment) => {
-        var p1 = segment.points[0];
-        var p2 = segment.points[1];
+}
 
-        this.ctx.beginPath();
-        this.ctx.moveTo(p1.x, p1.y);
+function drawSegment (ctx: CanvasRenderingContext2D, segment: Segment) {
+    let [p1, p2] = segment.points;
 
-        for (var i = 1, len = segment.points.length; i < len; i++) {
-            // we pick the point between pi+1 & pi+2 as the
-            // end point and p1 as our control point
-            var midPoint = midPointBtw(p1, p2);
-            this.ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
-            p1 = segment.points[i];
-            p2 = segment.points[i + 1];
-        }
-        // Draw last line as a straight line while
-        // we wait for the next point to be able to calculate
-        // the bezier control point
-        this.ctx.lineTo(p1.x, p1.y);
-        this.ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+
+    for (var i = 1, len = segment.points.length; i < len; i++) {
+        // we pick the point between pi+1 & pi+2 as the
+        // end point and p1 as our control point
+        var midPoint = midPointBtw(p1, p2);
+        ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
+        p1 = segment.points[i];
+        p2 = segment.points[i + 1];
     }
+    // Draw last line as a straight line while
+    // we wait for the next point to be able to calculate
+    // the bezier control point
+    ctx.lineTo(p1.x, p1.y);
+    ctx.stroke();
 }
 
 function midPointBtw(p1: Point, p2: Point): Point {
