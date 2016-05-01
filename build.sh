@@ -2,6 +2,7 @@
 
 set -e
 
+mkdir -p build/
 cp browser/* build/
 cp node_modules/systemjs/dist/system{,-polyfills}.js build/
 cp node_modules/react/dist/react.js build/
