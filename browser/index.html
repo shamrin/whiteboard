@@ -3,12 +3,19 @@
 <head>
     <link rel="stylesheet" href="pure-min.css" />
     <style>
-        canvas { border: 1px solid #ccc }
+        .main {
+            margin: 20px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
-    <div id="toolbar">...</div>
-    <canvas id="c" width="500" height="500"></canvas>
+    <div class="main">
+        <div id="toolbar">...</div>
+        <canvas id="c" width="500" height="500"></canvas>
+    </div>
     <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
     <script src="system.js"></script>
     <script>

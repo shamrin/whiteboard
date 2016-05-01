@@ -233,14 +233,17 @@ let Toolbar = React.createClass<ToolbarProps, any>({
                         }}
                     />)}
                 <button className="pure-button" style={clearButtonStyle} onClick={onClear}>Clear</button>
-           </div>
+            </div>
         );
     }
- });
- 
+});
+
 function main() {
     let canvas = new Canvas(document.getElementById('c'));
-    ReactDOM.render(<Toolbar onClear={() => canvas.db.clear()} />, document.getElementById('toolbar'));
+    ReactDOM.render(
+        <Toolbar onClear={() => canvas.db.clear()} />,
+        document.getElementById('toolbar')
+    );
 }
 
 main();
