@@ -117,6 +117,7 @@ function drawSegment (ctx: CanvasRenderingContext2D, {points, color}: Segment) {
     //
     //              2
     //
+    // P.S. Inspired by http://perfectionkills.com/exploring-canvas-drawing-techniques/#bezier-curves
     
     if (points.length < 1) { return; }
     
