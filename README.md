@@ -1,4 +1,17 @@
-### Getting started
+### What is it?
+
+Simple multi-user whiteboard with real-time synchronization.
+
+[See online demo here.](https://popping-torch-5328.firebaseapp.com/)
+
+### Tech stack
+
+* Firebase
+* TypeScript
+* React
+* SystemJS
+
+### Hacking
 
 Clone, build and run dev server:
 
@@ -7,7 +20,3 @@ Clone, build and run dev server:
     npm start
 
 Open browser: http://127.0.0.1:8000
-
-### Online demo
-
-https://popping-torch-5328.firebaseapp.com/
