@@ -1,10 +1,19 @@
 {
-  "firebase": "popping-torch-5328",
-  "public": "build/",
-  "ignore": [
-    "firebase.json",
-    "**/.*",
-    "**/node_modules/**",
-    "venv/**"
-  ]
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "hosting": {
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
 }

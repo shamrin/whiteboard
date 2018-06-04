@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
+const PROJECT_HOST = "https://whiteboard-9781b.firebaseio.com/";
+
 interface Point {
     x: number;
     y: number;
@@ -155,7 +157,7 @@ class SegmentsDatabase {
     firebase: Firebase;
     
     constructor({onAdd, onUpdate, onClear}) {
-        this.firebase = new Firebase("https://popping-torch-5328.firebaseio.com/");
+        this.firebase = new Firebase(PROJECT_HOST);
 
         this.firebase.child('segments').orderByKey().on('child_added', (snapshot, prevChildKey) =>
             onAdd(snapshot.val(), snapshot.key(), prevChildKey));
