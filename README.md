@@ -29,9 +29,10 @@ Open browser: http://127.0.0.1:8000
 
     npm install -g firebase-tools
     ./build.sh
+    firebase login --reauth
     firebase deploy
 
-### Why `node_modules/` is committed to the repository?
+### Why is `node_modules/` committed to the repository?
 
 1. It's convinient to be able to build the project no matter what happens with npm or third-party libraries. See also: [Hermetic build][1].
 2. Neither Yarn, nor package-lock.json existed at the time this project was created.
