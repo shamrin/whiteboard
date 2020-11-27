@@ -33,6 +33,7 @@ class Canvas {
     ctx: CanvasRenderingContext2D;
     isDrawing: Boolean;
     db: SegmentsDatabase;
+    currentSegmentKey: string;
     
     constructor(element) {
         this.segments = [{points: [], color: getColor()}];
@@ -57,7 +58,11 @@ class Canvas {
     }
     
     getSegment(): Segment {
-        return this.segments[this.segments.length - 1];
+        for(let i = this.segments.length - 1; i >= 0; i--) {
+            if(this.segments[i].key === this.currentSegmentKey) {
+                return this.segments[i];
+            }
+        }
     }
     
     handleSegmentAdd = (segment: Segment, key: string, prevKey: string) => {
@@ -81,6 +86,7 @@ class Canvas {
     handleMouseDown = (e: MouseEvent) => {
         this.isDrawing = true;
         let key = this.db.add({points: [getCoords(e, e.currentTarget as HTMLElement)], color: getColor()});
+        this.currentSegmentKey = key;
         this.getSegment().key = key;
     }
     
