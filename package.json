@@ -17,5 +17,5 @@
     "server": "cd build/ && python -m SimpleHTTPServer 8000"
   },
   "author": "Alexey Shamrin <shamrin@gmail.com>",
-  "license": "MIT"
+  "license": "Apache"
 }
