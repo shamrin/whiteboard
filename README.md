@@ -37,7 +37,3 @@ Open browser: http://127.0.0.1:8000
 2. Neither Yarn, nor package-lock.json existed at the time this project was created.
 
 [1]: https://landing.google.com/sre/book/chapters/release-engineering.html#hermetic-builds-nqslhnid
-
-### Known issues
-
-Weird behaviour when users are drawing segments at the same time. It works fine when they take turns.
