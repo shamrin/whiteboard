@@ -9,4 +9,4 @@
 # Someday / maybe
 
 * [ ] switch to svelte for UI
-* [ ] use snowpack
+* [ ] use vite
