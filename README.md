@@ -34,7 +34,7 @@ Open browser: http://127.0.0.1:8000
 
 ### Why is `node_modules/` committed to the repository?
 
-1. It's convinient to be able to build the project no matter what happens with npm or third-party libraries. See also: [Hermetic build][1].
+1. It's convenient to be able to build the project no matter what happens with npm or third-party libraries. See also: [Hermetic build][1].
 2. Neither Yarn, nor package-lock.json existed at the time this project was created.
 
 [1]: https://landing.google.com/sre/book/chapters/release-engineering.html#hermetic-builds-nqslhnid
